@@ -12,7 +12,7 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon></icon>
+  <icon>C:\encog-build\encog.ico</icon>
   <classPath>
     <mainClass>org.encog.workbench.EncogWorkBench</mainClass>
     <cp>.\jar\encog-core.jar</cp>
