@@ -45,13 +45,13 @@
 		
 		<exec executable="svn">			
 			<arg value="checkout" />
-			<arg value="http://encog-java.googlecode.com/svn/trunk/encog-workbench" />
+			<arg value="http://encog-java.googlecode.com/svn/branches/2.4.0/encog-workbench" />
 			<arg value="${basedir}" />
 		</exec>
 		
 		<exec executable="svn">			
 			<arg value="checkout" />
-			<arg value="http://encog-java.googlecode.com/svn/trunk/encog-build" />
+			<arg value="http://encog-java.googlecode.com/svn/branches/2.4.0/encog-build" />
 			<arg value="${path.build.util}" />
 		</exec>
 		
