@@ -104,11 +104,16 @@ public class KernelNetworkTrain extends EncogKernel {
 		CL.clSetKernelArg(getKernel(), 9, Sizeof.cl_mem, Pointer.to(this.activationTypeBuffer));
 
 		try {			
+			// Calculate the work-item dimensions
+			int localWork = Math.max(Encog.getInstance().getCL().getCLWorkloadSize(), 1);
+			int globalWork = workload.getMaxUnits();
+			
+			// don't create more than we have work for
+			localWork = Math.min(localWork, workload.getMaxUnits());
+					
 			// Set the work-item dimensions
-			final long[] global_work_size = new long[] { Encog.getInstance()
-					.getCL().getCLThreads() };
-			final long[] local_work_size = new long[] { Math.max(Encog
-					.getInstance().getCL().getCLWorkloadSize(), 1) };
+			final long[] global_work_size = new long[] { globalWork };
+			final long[] local_work_size = new long[] { localWork };
 
 			CL.clEnqueueWriteBuffer(workload.getDevice().getCommands(),
 					this.weightArrayBuffer, CL.CL_TRUE, 0, Sizeof.cl_float
