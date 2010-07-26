@@ -1,5 +1,5 @@
 /*
- * Encog(tm) Core v2.4
+ * Encog(tm) Core v2.5 
  * http://www.heatonresearch.com/encog/
  * http://code.google.com/p/encog-java/
  * 
@@ -37,6 +37,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.encog.neural.data.Indexable;
 import org.encog.neural.data.NeuralData;
@@ -113,7 +115,10 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 		 */
 		public void close() {
 			try {
-				this.input.close();
+				if( this.input!=null )
+					this.input.close();
+				this.input = null;
+				this.dataReady = false;
 			} catch (final IOException e) {
 				throw new NeuralDataError(e);
 			}
@@ -145,6 +150,10 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 			if (!this.dataReady) {
 				readNext();
 			}
+			
+			if( !dataReady )
+				close();
+			
 			return this.dataReady;
 		}
 
@@ -158,7 +167,7 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 			}
 
 			if (!this.dataReady) {
-				return null;
+				throw new NoSuchElementException();
 			}
 
 			// swap
@@ -175,6 +184,9 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 		 */
 		private void readNext() {
 			try {
+				if( this.input==null )
+					throw new NoSuchElementException();
+				
 				if (BufferedNeuralDataSet.this.idealSize > 0) {
 					readDoubleArray(this.input, this.next.getInput());
 					readDoubleArray(this.input, this.next.getIdeal());
@@ -198,6 +210,9 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 		}
 
 	}
+	
+	
+	private List<BufferedNeuralDataSet> additional = new ArrayList<BufferedNeuralDataSet>();
 
 	/**
 	 * Error message for ADD.
@@ -230,6 +245,11 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 	 * The size(in bytes) of a record.
 	 */
 	private int recordSize;
+	
+	/**
+	 * The owner;
+	 */
+	private BufferedNeuralDataSet owner;
 
 	/**
 	 * The iterators.
@@ -246,6 +266,8 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 	 * The current input file.
 	 */
 	private RandomAccessFile input;
+	
+	private long lastOffset;
 
 	/**
 	 * Construct a buffered dataset using the specified file.
@@ -345,8 +367,25 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 	 * Close all iterators.
 	 */
 	public void close() {
+		
+		Object[] obj = this.additional.toArray();
+		
+		for(int i=0;i<obj.length;i++)
+		{
+			BufferedNeuralDataSet set = (BufferedNeuralDataSet)obj[i];
+			set.close();
+		}
+		
+		this.additional.clear();
+		
 		for (final BufferedNeuralDataSetIterator iterator : this.iterators) {
 			iterator.close();
+		}
+		
+		closeInputFile();
+		
+		if( this.owner!=null ) {
+			this.owner.removeAdditional(this);
 		}
 
 	}
@@ -390,13 +429,20 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 		try {
 			openInputFile();
 			final long header = 16;
-			this.input.seek((index * this.recordSize) + header);
+			final long offset = (index * this.recordSize) + header;
+			
+			if( offset!=lastOffset )
+			{
+				this.input.seek(offset);
+				this.lastOffset = offset + this.recordSize;
+			}
 			if (BufferedNeuralDataSet.this.idealSize > 0) {
 				readDoubleArray(this.input, pair.getInput());
 				readDoubleArray(this.input, pair.getIdeal());
 			} else {
 				readDoubleArray(this.input, pair.getInput());
 			}
+			this.lastOffset+=this.recordSize;
 		} catch (final IOException e) {
 			throw new NeuralDataError(e);
 		}
@@ -453,7 +499,10 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 	 * @return The additional buffered data set.
 	 */
 	public Indexable openAdditional() {
-		return new BufferedNeuralDataSet(this.bufferFile);
+		BufferedNeuralDataSet result = new BufferedNeuralDataSet(this.bufferFile);
+		result.setOwner(this);
+		this.additional.add(result);
+		return result;
 	}
 
 	/**
@@ -466,6 +515,20 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 				this.input = new RandomAccessFile(this.bufferFile, "r");
 			}
 		} catch (final IOException e) {
+			throw new NeuralDataError(e);
+		}
+	}
+	
+	private void closeInputFile()
+	{
+		try
+		{
+			if( this.input!=null )
+				this.input.close();
+			this.input = null;
+		}
+		catch(IOException e)
+		{
 			throw new NeuralDataError(e);
 		}
 	}
@@ -483,6 +546,7 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 	private void readDoubleArray(final RandomAccessFile raf,
 			final NeuralData data) throws IOException {
 		final double[] d = data.getData();
+
 		for (int i = 0; i < data.size(); i++) {
 			d[i] = raf.readDouble();
 		}
@@ -501,6 +565,23 @@ public class BufferedNeuralDataSet implements NeuralDataSet, Indexable {
 			}
 		} catch (final IOException e) {
 			throw new NeuralDataError(e);
+		}
+	}
+
+
+	public BufferedNeuralDataSet getOwner() {
+		return owner;
+	}
+
+	public void setOwner(BufferedNeuralDataSet owner) {
+		this.owner = owner;
+	}
+	
+	public void removeAdditional(BufferedNeuralDataSet child)
+	{
+		synchronized(this)
+		{
+			this.additional.remove(child);
 		}
 	}
 
