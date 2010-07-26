@@ -1,5 +1,5 @@
 /*
- * Encog(tm) Core v2.4
+ * Encog(tm) Core v2.5 
  * http://www.heatonresearch.com/encog/
  * http://code.google.com/p/encog-java/
  * 
@@ -73,7 +73,7 @@ public final class EncogUtility {
 		final CSVNeuralDataSet csv = new CSVNeuralDataSet(csvFile.toString(),
 				inputCount, outputCount, false);
 		final BufferedNeuralDataSet buffer = new BufferedNeuralDataSet(binFile);
-		buffer.beginLoad(50, 6);
+		buffer.beginLoad(inputCount, outputCount);
 		for (final NeuralDataPair pair : csv) {
 			buffer.add(pair);
 		}
@@ -270,9 +270,11 @@ public final class EncogUtility {
 	 */
 	public static void trainToError(final BasicNetwork network,
 			final NeuralDataSet trainingSet, final double error) {
-		final Propagation train = new ResilientPropagation(network,
+		
+		Train train;
+		
+		train = new ResilientPropagation(network,
 				trainingSet);
-		train.setNumThreads(0);
 		EncogUtility.trainToError(train, network, trainingSet, error);
 	}
 
@@ -304,7 +306,7 @@ public final class EncogUtility {
 					+ " Error:" + Format.formatPercent(train.getError())
 					+ " Target Error: " + Format.formatPercent(error));
 			epoch++;
-		} while (train.getError() > error);
+		} while ( (train.getError() > error) );
 		train.finishTraining();
 	}
 }
