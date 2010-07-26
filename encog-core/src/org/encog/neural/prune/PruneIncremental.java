@@ -34,7 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.encog.StatusReportable;
+import org.encog.neural.data.Indexable;
 import org.encog.neural.data.NeuralDataSet;
+import org.encog.neural.data.buffer.BufferedNeuralDataSet;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.Layer;
 import org.encog.neural.networks.training.propagation.Propagation;
@@ -74,30 +76,44 @@ public class PruneIncremental extends ConcurrentJob {
 	 *            The network to format.
 	 * @return A human readable string.
 	 */
-	public static String networkToString(final BasicNetwork network) {
-		final StringBuilder result = new StringBuilder();
-		int num = 1;
+    public static String networkToString(final BasicNetwork network) {
+        final StringBuilder result = new StringBuilder();
+        int num = 1;
 
-		Layer layer = network.getLayer(BasicNetwork.TAG_INPUT);
+        Layer layer = network.getLayer(BasicNetwork.TAG_INPUT);
 
-		// display only hidden layers
-		while (layer.getNext().size() > 0) {
-			layer = layer.getNext().get(0).getToLayer();
+        Layer[] prevlayer = new Layer[network.getStructure().getLayers().size()]; // E.F. Added 7/14/2010
+        boolean dupfound = false; // E.F. Added 7/24/2010
 
-			if (layer.getNext().size() > 0) {
-				if (result.length() > 0) {
-					result.append(",");
-				}
-				result.append("H");
-				result.append(num++);
-				result.append("=");
-				result.append(layer.getNeuronCount());
-			}
-		}
+        // display only hidden layers
+        while (layer.getNext().size() > 0 && !dupfound) { // E.F. Changed 7/14/2010
+            layer = layer.getNext().get(0).getToLayer();
 
-		return result.toString();
-	}
+            // E.F. Added dup search 7/14/2010
+            for (int j = 0; j < prevlayer.length; j++) {
+                if (layer == prevlayer[j]) {
+                    dupfound = true;
+                    break;
+                } else if (prevlayer[j] == null) {
+                    prevlayer[j] = layer;
+                    break;
+                }
+            }
+            // E.F. end of dup search
 
+            if (layer.getNext().size() > 0 && !dupfound) { // E.F. Changed 7/14/2010
+                if (result.length() > 0) {
+                    result.append(",");
+                }
+                result.append("H");
+                result.append(num++);
+                result.append("=");
+                result.append(layer.getNeuronCount());
+            }
+        }
+
+        return result.toString();
+    }
 	/**
 	 * Are we done?
 	 */
@@ -427,14 +443,23 @@ public class PruneIncremental extends ConcurrentJob {
 	public void performJobUnit(final JobUnitContext context) {
 
 		final BasicNetwork network = (BasicNetwork) context.getJobUnit();
+		BufferedNeuralDataSet buffer = null;
+		NeuralDataSet useTraining = this.training;
+		
+		if( this.training instanceof BufferedNeuralDataSet )
+		{
+			buffer = (BufferedNeuralDataSet)this.training;
+			useTraining = buffer.openAdditional();
+		}
+		
 
 		// train the neural network
-
+	
 		double error = Double.POSITIVE_INFINITY;
 		for (int z = 0; z < this.weightTries; z++) {
 			network.reset();
 			final Propagation train = new ResilientPropagation(network,
-					this.training);
+					useTraining);
 			final StopTrainingStrategy strat = new StopTrainingStrategy(0.001,
 					5);
 
@@ -448,6 +473,9 @@ public class PruneIncremental extends ConcurrentJob {
 
 			error = Math.min(error, train.getError());
 		}
+		
+		if( buffer!=null )
+			buffer.close();
 
 		if (!getShouldStop()) {
 			// update min and max
@@ -608,9 +636,9 @@ public class PruneIncremental extends ConcurrentJob {
 		if (choice != this.bestNetwork) {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("Prune found new best network: error="
-						+ error + ", network=" + network);
+						+ error + ", network=" + choice);
 			}
-			this.bestNetwork = network;
+			this.bestNetwork = choice;
 		}
 
 	}
