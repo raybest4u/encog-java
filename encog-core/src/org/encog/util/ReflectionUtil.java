@@ -205,13 +205,14 @@ public final class ReflectionUtil {
 	 *            The simple name of the class.
 	 * @return The class requested.
 	 */
-	public static Class< ? > resolveEncogClass(final String name) {
-		if (ReflectionUtil.classMap.size() == 0) {
-			ReflectionUtil.loadClassmap();
-		}
-		return ReflectionUtil.classMap.get(name);
-	}
-
+    public static Class< ? > resolveEncogClass(final String name) {
+        synchronized (ReflectionUtil.classMap) { // E.F. Added 7/9/2010
+            if (ReflectionUtil.classMap.size() == 0) {
+                ReflectionUtil.loadClassmap();
+            }
+        } // E.F. Added 7/9/2010
+        return ReflectionUtil.classMap.get(name);
+    }
 	/**
 	 * Determine if Encog persistence should access the specified field.
 	 * 
