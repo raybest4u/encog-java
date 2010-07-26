@@ -60,7 +60,7 @@
 		
 		<exec executable="svn">			
 			<arg value="checkout" />
-			<arg value="http://encog-java.googlecode.com/svn/branches/2.4.0/trunk/encog-examples" />
+			<arg value="http://encog-java.googlecode.com/svn/branches/2.4.0/encog-examples" />
 			<arg value="${path.examples}" />
 		</exec>
 		
