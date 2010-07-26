@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.encog.util.cl.EncogCL;
+import org.encog.util.concurrency.EncogConcurrency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,5 +165,14 @@ public final class Encog {
     {
     	return this.cl;
     }
+    
+	/**
+	 * Provides any shutdown that Encog may need. Currently this shuts down the
+	 * thread pool.
+	 */
+	public void shutdown() {
+		EncogConcurrency.getInstance().shutdown(10000);
+	}
+
 
 }
