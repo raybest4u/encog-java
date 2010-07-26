@@ -1,5 +1,5 @@
 /*
- * Encog(tm) Core v2.4
+ * Encog(tm) Core v2.4 
  * http://www.heatonresearch.com/encog/
  * http://code.google.com/p/encog-java/
  * 
@@ -82,7 +82,7 @@ public class CPNPattern implements NeuralNetworkPattern {
 	 *            NOT USED
 	 */
 	public void addHiddenLayer(final int count) {
-		final String str = "A CPN already has a predefined hidden layer.  No additiona"
+		final String str = "A CPN already has a predefined hidden layer.  No additional"
 				+ "specification is needed.";
 		if (this.logger.isErrorEnabled()) {
 			this.logger.error(str);
