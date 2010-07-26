@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.encog.EncogError;
+import org.encog.neural.networks.logic.NeuralLogic;
 import org.encog.persist.annotations.EGIgnore;
 import org.encog.persist.location.ResourcePersistence;
 
@@ -264,4 +265,24 @@ public final class ReflectionUtil {
 		return null;
 	}
 
+	public static Object newInstance(String name) {
+				
+		try {
+			
+			Class<?> c = resolveEncogClass(name);
+			if( c!=null )
+				return c.newInstance();
+			
+			Object result = (NeuralLogic) Class.forName(name)
+					.newInstance();
+			return result;
+			
+		} catch (final ClassNotFoundException e) {
+			throw new EncogError(e);
+		} catch (final InstantiationException e) {
+			throw new EncogError(e);
+		} catch (final IllegalAccessException e) {
+			throw new EncogError(e);
+		}
+	}
 }

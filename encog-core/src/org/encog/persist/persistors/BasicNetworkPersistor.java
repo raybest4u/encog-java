@@ -42,6 +42,7 @@ import org.encog.neural.networks.logic.BoltzmannLogic;
 import org.encog.neural.networks.logic.FeedforwardLogic;
 import org.encog.neural.networks.logic.HopfieldLogic;
 import org.encog.neural.networks.logic.NeuralLogic;
+import org.encog.neural.networks.logic.SOMLogic;
 import org.encog.neural.networks.logic.SimpleRecurrentLogic;
 import org.encog.neural.networks.synapse.Synapse;
 import org.encog.parse.tags.read.ReadXML;
@@ -49,6 +50,7 @@ import org.encog.parse.tags.write.WriteXML;
 import org.encog.persist.EncogPersistedCollection;
 import org.encog.persist.EncogPersistedObject;
 import org.encog.persist.Persistor;
+import org.encog.util.ReflectionUtil;
 
 /**
  * The Encog persistor used to persist the BasicNetwork class.
@@ -245,18 +247,11 @@ public class BasicNetworkPersistor implements Persistor {
 			this.currentNetwork.setLogic(new HopfieldLogic());
 		} else if (value.equalsIgnoreCase("SimpleRecurrentLogic")) {
 			this.currentNetwork.setLogic(new SimpleRecurrentLogic());
-		} else {
-			try {
-				final NeuralLogic logic = (NeuralLogic) Class.forName(value)
-						.newInstance();
-				this.currentNetwork.setLogic(logic);
-			} catch (final ClassNotFoundException e) {
-				throw new EncogError(e);
-			} catch (final InstantiationException e) {
-				throw new EncogError(e);
-			} catch (final IllegalAccessException e) {
-				throw new EncogError(e);
-			}
+		} else if (value.equalsIgnoreCase("SOMLogic")) {    // E.F. Added 7/19/2010
+            this.currentNetwork.setLogic(new SOMLogic()); // E.F. Added 7/19/2010
+        } else {
+			final NeuralLogic logic = (NeuralLogic)ReflectionUtil.newInstance(value);
+			this.currentNetwork.setLogic(logic);
 		}
 	}
 
