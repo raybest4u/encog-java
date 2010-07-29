@@ -75,12 +75,13 @@ public class BenchmarkCL {
             BasicNetwork network = EncogUtility.simpleFeedForward(
                 training.getInputSize(), 6, 0, training.getIdealSize(), true);
             network.reset();
-
+            
             System.out.println("Running non-OpenCL test.");
             long cpuTime = benchmarkCPU(network, training);
             System.out.println("Non-OpenCL test took " + cpuTime + "ms.");
             System.out.println("Starting OpenCL");
             Encog.getInstance().initCL();
+            System.out.println(Encog.getInstance().getCL().toString());
             System.out.println("Running OpenCL test.");
             long clTime = benchmarkCL(network, training);
             System.out.println("OpenCL test took " + clTime + "ms.");
