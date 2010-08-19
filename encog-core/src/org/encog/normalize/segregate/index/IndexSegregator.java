@@ -85,5 +85,12 @@ public abstract class IndexSegregator implements Segregator {
 	public void rollIndex() {
 		this.currentIndex++;
 	}
+	
+	/**
+	 * Reset the current index to zero.
+	 */
+	public void passInit() {	
+		this.currentIndex = 0;
+	}
 
 }
