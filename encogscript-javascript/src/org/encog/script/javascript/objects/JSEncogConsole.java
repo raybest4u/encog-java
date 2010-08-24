@@ -2,7 +2,7 @@ package org.encog.script.javascript.objects;
 
 import org.encog.script.ConsoleInputOutput;
 
-import sun.org.mozilla.javascript.internal.ScriptableObject;
+import org.mozilla.javascript.ScriptableObject;
 
 public class JSEncogConsole {
 

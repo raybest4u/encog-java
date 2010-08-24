@@ -1,18 +1,12 @@
 package org.encog.script.javascript;
 
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import org.encog.persist.EncogMemoryCollection;
 import org.encog.script.ConsoleInputOutput;
 import org.encog.script.EncogScript;
 import org.encog.script.EncogScriptEngine;
+import org.encog.script.EncogScriptEngineFactory;
 import org.encog.script.EncogScriptError;
 import org.encog.script.EncogScriptRuntimeError;
 import org.encog.script.javascript.objects.JSEncogCollection;
@@ -20,17 +14,14 @@ import org.encog.script.javascript.objects.JSEncogConsole;
 import org.encog.script.javascript.objects.JSNeuralNetwork;
 import org.encog.script.javascript.objects.JSTrainer;
 import org.encog.script.javascript.objects.JSTrainingData;
-
-import sun.org.mozilla.javascript.internal.Context;
-import sun.org.mozilla.javascript.internal.EcmaError;
-import sun.org.mozilla.javascript.internal.EvaluatorException;
-import sun.org.mozilla.javascript.internal.Scriptable;
-import sun.org.mozilla.javascript.internal.ScriptableObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EcmaError;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 public class EncogJavascriptEngine implements EncogScriptEngine {
 
-	private ScriptEngineManager mgr;
-	private ScriptEngine engine;
 	private ConsoleInputOutput externalConsole;
 	private EncogMemoryCollection currentCollection;
 	
@@ -40,8 +31,11 @@ public class EncogJavascriptEngine implements EncogScriptEngine {
 	public EncogJavascriptEngine(EncogMemoryCollection collection)
 	{
 		this.currentCollection = collection;
-		this.mgr = new ScriptEngineManager();
-		this.engine = mgr.getEngineByName("JavaScript");
+	}
+	
+	public static void init()
+	{
+		EncogScriptEngineFactory.getInstance().registerIndividualEngineFactory(new EncogJavascriptEngineFactory());
 	}
 	
 	public EncogJavascriptEngine() {

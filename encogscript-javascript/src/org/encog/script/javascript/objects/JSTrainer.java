@@ -1,13 +1,11 @@
 package org.encog.script.javascript.objects;
 
 import org.encog.engine.util.Format;
-import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.training.Train;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
-import org.encog.util.simple.EncogUtility;
 
-import sun.org.mozilla.javascript.internal.Context;
-import sun.org.mozilla.javascript.internal.ScriptableObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 
 public class JSTrainer extends ScriptableObject {
 	

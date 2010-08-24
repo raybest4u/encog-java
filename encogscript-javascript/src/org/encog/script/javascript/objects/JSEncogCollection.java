@@ -2,12 +2,10 @@ package org.encog.script.javascript.objects;
 
 import java.io.File;
 
-import org.encog.persist.EncogCollection;
 import org.encog.persist.EncogMemoryCollection;
-import org.encog.persist.EncogPersistedCollection;
 import org.encog.persist.location.FilePersistence;
 
-import sun.org.mozilla.javascript.internal.ScriptableObject;
+import org.mozilla.javascript.ScriptableObject;
 
 public class JSEncogCollection extends ScriptableObject {
 	

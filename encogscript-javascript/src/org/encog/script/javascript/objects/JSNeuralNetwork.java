@@ -8,8 +8,8 @@ import org.encog.neural.pattern.FeedForwardPattern;
 import org.encog.script.EncogScriptError;
 import org.encog.util.simple.EncogUtility;
 
-import sun.org.mozilla.javascript.internal.Context;
-import sun.org.mozilla.javascript.internal.ScriptableObject;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ScriptableObject;
 
 public class JSNeuralNetwork extends ScriptableObject {
 
