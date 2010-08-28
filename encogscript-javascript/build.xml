@@ -1,6 +1,6 @@
 <project name="encog-core" default="build" basedir=".">
 	<description>
-        Build the core JAR file for Encog.
+        Build the Encog Javascript plugin.
     </description>
 	<!-- load the properties file -->
 	<property file="encog.properties"/>
@@ -26,10 +26,6 @@
 			<classpath refid="classpath" />
 		</javac>
 		
-		<copy todir="${path.build}/org/encog/cloud/server/webroot">
-			<fileset dir="src/org/encog/cloud/server/webroot" />
-		</copy>
-		
 	</target>
 
 
@@ -44,7 +40,7 @@
 			<attribute name="Built-By" value="${user.name}" />
 		</manifest>
 
-		<property name="jarfile" location="${path.lib}/encog-cloud.jar" />
+		<property name="jarfile" location="${path.lib}/encog-javascript-2.5.jar" />
 
 		<jar jarfile="${jarfile}" basedir="${path.build}" manifest="MANIFEST.MF" />
 
