@@ -5,6 +5,7 @@ import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.data.basic.BasicNeuralDataPair;
 import org.encog.neural.data.basic.BasicNeuralDataSet;
 import org.encog.script.EncogScriptError;
+import org.encog.util.csv.ReadCSV;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
@@ -48,6 +49,16 @@ public class JSTrainingData extends ScriptableObject {
 	public int jsGet_count()
 	{
 		return (int)this.data.getRecordCount();
+	}
+	
+	public void jsFunction_loadCSV(String name)
+	{
+		//ReadCSV csv = new ReadCSV();
+	}
+	
+	public void jsFunction_saveCSV(String name)
+	{
+		
 	}
 	
 	public static void jsFunction_define(Context cx, Scriptable thisObject, Object[] args, Function funObj)

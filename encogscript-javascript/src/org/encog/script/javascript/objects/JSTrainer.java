@@ -35,24 +35,37 @@ public class JSTrainer extends ScriptableObject {
 		train.iteration();
 	}
 	
-	public void jsFunction_trainToError(double error)
-	{
+	public void jsFunction_trainToError(double error) {
 		int epoch = 1;
 
-		Object obj = ScriptableObject.getProperty(this.getParentScope(),"console");
-		JSEncogConsole console = (JSEncogConsole)Context.jsToJava(obj, JSEncogConsole.class);
+		Object obj = ScriptableObject.getProperty(this.getParentScope(),
+				"console");
+		JSEncogConsole console = (JSEncogConsole) Context.jsToJava(obj,
+				JSEncogConsole.class);
 		console.println("Beginning training...");
+
+		long lastUpdate = 0;
 
 		do {
 			train.iteration();
 
-			console.println("Iteration #" + Format.formatInteger(epoch)
-					+ " Error:" + Format.formatPercent(train.getError())
-					+ " Target Error: " + Format.formatPercent(error));
+			long sinceLastUpdate = System.currentTimeMillis() - lastUpdate;
+
+			if (sinceLastUpdate > 1000) {
+				console.println("Iteration #" + Format.formatInteger(epoch)
+						+ " Error:" + Format.formatPercent(train.getError())
+						+ " Target Error: " + Format.formatPercent(error));
+				lastUpdate = System.currentTimeMillis();
+			}
 			epoch++;
-		} while ( (train.getError() > error) && !train.isTrainingDone() );
+		} while ((train.getError() > error) && !train.isTrainingDone());
+		
+		console.println("Iteration #" + Format.formatInteger(epoch)
+				+ " Error:" + Format.formatPercent(train.getError())
+				+ " Target Error: " + Format.formatPercent(error));
+		
+		
 		train.finishTraining();
-	}
-	
+	}	
 	
 }
