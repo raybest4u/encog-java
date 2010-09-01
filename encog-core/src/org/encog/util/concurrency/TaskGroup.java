@@ -130,7 +130,9 @@ public class TaskGroup {
 			this.accessLock.lock();
 			try {
 				try {
-					this.mightBeDone.await();
+					if (!getNoTasks()) {
+						this.mightBeDone.await();
+					}
 				} catch (InterruptedException e) {
 					throw new EncogError(e);
 				}
