@@ -171,11 +171,14 @@ public class BasicLayerPersistor implements Persistor {
 		}
 
 		out.addProperty(BasicLayerPersistor.PROPERTY_BIAS_ACTIVATION, layer.getBiasActivation());
-		out.beginTag(BasicLayerPersistor.TAG_ACTIVATION);
-		final Persistor persistor = layer.getActivationFunction()
-				.createPersistor();
-		persistor.save(layer.getActivationFunction(), out);
-		out.endTag();
+		
+		if( layer.getActivationFunction()!=null ) {
+			out.beginTag(BasicLayerPersistor.TAG_ACTIVATION);
+			final Persistor persistor = layer.getActivationFunction()
+					.createPersistor();
+			persistor.save(layer.getActivationFunction(), out);
+			out.endTag();
+		}
 
 		out.endTag();
 	}
