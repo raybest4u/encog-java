@@ -30,6 +30,7 @@
 
 package org.encog.examples.neural.persist;
 
+import org.encog.neural.activation.ActivationSigmoid;
 import org.encog.neural.data.NeuralDataSet;
 import org.encog.neural.data.basic.BasicNeuralDataSet;
 import org.encog.neural.networks.BasicNetwork;
@@ -51,9 +52,9 @@ public class EncogPersistence {
 	public void trainAndSave() {
 		System.out.println("Training XOR network to under 1% error rate.");
 		BasicNetwork network = new BasicNetwork();
-		network.addLayer(new BasicLayer(2));
-		network.addLayer(new BasicLayer(2));
-		network.addLayer(new BasicLayer(1));
+		network.addLayer(new BasicLayer(null, true,2));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), true,4));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(), true,1));
 		network.getStructure().finalizeStructure();
 		network.reset();
 
