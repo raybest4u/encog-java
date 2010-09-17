@@ -68,7 +68,7 @@ public class JavaClassPathUtil {
 		for(int i = 0; i<str.length(); i++)
 		{
 			char ch = str.charAt(i);
-			if( ch==File.pathSeparatorChar )
+			if( ch==File.separatorChar )
 				ch = replace;
 			result.append(ch);
 		}
