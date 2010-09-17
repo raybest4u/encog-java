@@ -41,6 +41,7 @@ import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.data.basic.BasicNeuralDataPair;
 import org.encog.neural.data.basic.BasicNeuralDataSet;
 import org.encog.persist.EncogPersistedCollection;
+import org.encog.util.csv.CSVFormat;
 import org.encog.util.csv.ReadCSV;
 import org.encog.workbench.WorkBenchError;
 
@@ -95,7 +96,7 @@ public class ImportExportUtility {
 		}
 
 		int line = 0;
-		final ReadCSV csv = new ReadCSV(filename, false, ',');
+		final ReadCSV csv = new ReadCSV(filename, false, CSVFormat.EG_FORMAT);
 		while (csv.next()) {
 			line++;
 			BasicNeuralData input = null, ideal = null;
