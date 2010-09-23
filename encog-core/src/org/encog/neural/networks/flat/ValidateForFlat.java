@@ -78,7 +78,7 @@ public final class ValidateForFlat {
 
 			if (!(layer.getActivationFunction() instanceof ActivationSigmoid)
 					&& !(layer.getActivationFunction() instanceof ActivationTANH)) {
-				return "To convert to flat a network must only use sigmoid, linear or tanh activation.";
+				return "To convert to flat a network must only use sigmoid or tanh activation.";
 			}
 
 			if (!layer.hasBias() && (layer != inputLayer)) {
