@@ -65,6 +65,7 @@ import org.encog.neural.networks.logic.BoltzmannLogic;
 import org.encog.neural.networks.logic.FeedforwardLogic;
 import org.encog.neural.networks.logic.HopfieldLogic;
 import org.encog.neural.networks.logic.NeuralLogic;
+import org.encog.neural.networks.logic.SOMLogic;
 import org.encog.neural.networks.logic.SimpleRecurrentLogic;
 import org.encog.neural.networks.synapse.DirectSynapse;
 import org.encog.neural.networks.synapse.OneToOneSynapse;
@@ -118,7 +119,7 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 
 	public static final String[] LOGIC = { "Feed Forward", "Simple Recurrent",
 			"Adaptive Resonance Theory", "Bidirectional", "Boltzmann",
-			"Hopfield" };
+			"Hopfield", "SOM" };
 
 	public NetworkTab(final BasicNetwork data) {
 		super(data);
@@ -139,9 +140,9 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 				Type.synapse, DirectSynapse.class));
 		tools.add(new NetworkTool("One-To-One", Icons.getSynapseOneToOne(),
 				Type.synapse, OneToOneSynapse.class));
-		tools.add(new NetworkTool("NEAT", Icons.getSynapseNEAT(),
-				Type.synapse, NEATSynapse.class));
-		
+		tools.add(new NetworkTool("NEAT", Icons.getSynapseNEAT(), Type.synapse,
+				NEATSynapse.class));
+
 		setLayout(new BorderLayout());
 		this.toolbar = new JToolBar();
 		this.toolbar.setFloatable(false);
@@ -185,7 +186,7 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 			performProperties();
 		} else if (action.getSource() == this.comboLogic) {
 			collectLogic();
-		}  else if (action.getSource() == this.buttonAnalyze ) {
+		} else if (action.getSource() == this.buttonAnalyze) {
 			analyzeWeights();
 		}
 	}
@@ -215,9 +216,8 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 				return false;
 			}
 		} catch (Throwable t) {
-			EncogWorkBench.displayError("Unexpected Internal Error", t
-					.toString()
-					+ "\n" + t.getMessage());
+			EncogWorkBench.displayError("Unexpected Internal Error",
+					t.toString() + "\n" + t.getMessage());
 		}
 
 		if (reportSuccess)
@@ -226,165 +226,156 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 		return true;
 
 	}
-	
-	
+
 	private void performTrain() {
 		Training training = new Training();
-		training.perform(EncogWorkBench.getInstance().getMainWindow(),(BasicNetwork)this.getEncogObject());
+		training.perform(EncogWorkBench.getInstance().getMainWindow(),
+				(BasicNetwork) this.getEncogObject());
 	}
 
 	private void performRandomize() {
 		if (performValidate(false, true)) {
 			if (EncogWorkBench.askQuestion("Are you sure?",
-					"Randomize network weights and lose all training?")) {				
-				
-				RandomizeNetworkDialog dialog = 
-					new RandomizeNetworkDialog(EncogWorkBench.getInstance().getMainWindow());
-				
+					"Randomize network weights and lose all training?")) {
+
+				RandomizeNetworkDialog dialog = new RandomizeNetworkDialog(
+						EncogWorkBench.getInstance().getMainWindow());
+
 				dialog.getHigh().setValue(1);
-				dialog.getConstHigh().setValue(1);				
+				dialog.getConstHigh().setValue(1);
 				dialog.getLow().setValue(-1);
 				dialog.getConstLow().setValue(-1);
 				dialog.getSeedValue().setValue(1000);
 				dialog.getConstantValue().setValue(0);
 				dialog.getPerturbPercent().setValue(0.01);
-				
-				if( dialog.process() )
-				{
-					switch( dialog.getCurrentTab() )
-					{
-						case 0:
-							optionRandomize(dialog);
-							break;
-					
-						case 1:
-							optionPerturb(dialog);
-							break;
-						case 2:
-							optionGaussian(dialog);
-							break;	
-						case 3:
-							optionConsistent(dialog);
-							break;
-							
-						case 4:
-							optionConstant(dialog);
-							break;
+
+				if (dialog.process()) {
+					switch (dialog.getCurrentTab()) {
+					case 0:
+						optionRandomize(dialog);
+						break;
+
+					case 1:
+						optionPerturb(dialog);
+						break;
+					case 2:
+						optionGaussian(dialog);
+						break;
+					case 3:
+						optionConsistent(dialog);
+						break;
+
+					case 4:
+						optionConstant(dialog);
+						break;
 					}
 				}
 			}
 		}
 
 	}
-	
+
 	private void optionConstant(RandomizeNetworkDialog dialog) {
 		double value = dialog.getConstantValue().getValue();
 		ConstRandomizer r = new ConstRandomizer(value);
-		r.randomize((BasicNetwork)getEncogObject());
+		r.randomize((BasicNetwork) getEncogObject());
 	}
 
 	private void optionConsistent(RandomizeNetworkDialog dialog) {
 		int seed = dialog.getSeedValue().getValue();
 		double min = dialog.getConstLow().getValue();
 		double max = dialog.getConstHigh().getValue();
-		ConsistentRandomizer c = new ConsistentRandomizer(min,max,seed);
-		c.randomize((BasicNetwork)getEncogObject());		
+		ConsistentRandomizer c = new ConsistentRandomizer(min, max, seed);
+		c.randomize((BasicNetwork) getEncogObject());
 	}
 
 	private void optionPerturb(RandomizeNetworkDialog dialog) {
 		double percent = dialog.getPerturbPercent().getValue();
-		
+
 		Distort distort = new Distort(percent);
-		distort.randomize((BasicNetwork)getEncogObject());		
+		distort.randomize((BasicNetwork) getEncogObject());
 	}
-	
+
 	private void optionGaussian(RandomizeNetworkDialog dialog) {
 		double mean = dialog.getMean().getValue();
 		double dev = dialog.getDeviation().getValue();
-		
-		GaussianRandomizer g = new GaussianRandomizer(mean,dev);
-		g.randomize((BasicNetwork)getEncogObject());		
+
+		GaussianRandomizer g = new GaussianRandomizer(mean, dev);
+		g.randomize((BasicNetwork) getEncogObject());
 	}
 
-	private void optionRandomize(RandomizeNetworkDialog dialog)
-	{
+	private void optionRandomize(RandomizeNetworkDialog dialog) {
 		Randomizer r = null;
-		
-		switch( dialog.getType().getSelectedIndex() )
-		{
-			case 0: // Random
-				r = new RangeRandomizer(
-						dialog.getLow().getValue(),
-						dialog.getHigh().getValue());
-				break;
-			case 1: // Nguyen-Widrow
-				r = new NguyenWidrowRandomizer(
-						dialog.getLow().getValue(),
-						dialog.getHigh().getValue());
-				break;
-			case 2: // Fan in
-				r = new FanInRandomizer(
-						dialog.getLow().getValue(),
-						dialog.getHigh().getValue(),false);
-				break;
+
+		switch (dialog.getType().getSelectedIndex()) {
+		case 0: // Random
+			r = new RangeRandomizer(dialog.getLow().getValue(), dialog
+					.getHigh().getValue());
+			break;
+		case 1: // Nguyen-Widrow
+			r = new NguyenWidrowRandomizer(dialog.getLow().getValue(), dialog
+					.getHigh().getValue());
+			break;
+		case 2: // Fan in
+			r = new FanInRandomizer(dialog.getLow().getValue(), dialog
+					.getHigh().getValue(), false);
+			break;
 		}
-		
-		if( r!=null )
-			r.randomize((BasicNetwork)this.getEncogObject());
+
+		if (r != null)
+			r.randomize((BasicNetwork) this.getEncogObject());
 	}
 
 	private void performQuery() {
-		try
-		{
-		if (performValidate(false, true)) {
+		try {
+			if (performValidate(false, true)) {
 
-			NeuralLogic logic = ((BasicNetwork) this.getEncogObject())
-					.getLogic();
+				NeuralLogic logic = ((BasicNetwork) this.getEncogObject())
+						.getLogic();
 
-			if (logic instanceof ART1Logic) {
-				EncogWorkBench
-						.displayMessage(
-								"Training",
-								"Sorry, but the workbench currently cannot be used to query this network type.\n"
-										+ "You will need to create a program with the Encog Core to query it.");
-			} else if (logic instanceof BAMLogic) {
-				EncogWorkBench
-						.displayMessage(
-								"Training",
-								"Sorry, but the workbench currently cannot be used to query this network type.\n"
-										+ "You will need to create a program with the Encog Core to query it.");
-			} else if (logic instanceof BoltzmannLogic) {
-				EncogWorkBench
-						.displayMessage(
-								"Training",
-								"Sorry, but the workbench currently cannot be used to query this network type.\n"
-										+ "You will need to create a program with the Encog Core to query it.");
-			} else if (logic instanceof FeedforwardLogic) {
-				NetworkQueryFrame query = new NetworkQueryFrame(
-						((BasicNetwork) this.getEncogObject()));
-				query.setVisible(true);
-			} else if (logic instanceof HopfieldLogic) {
-				EncogWorkBench
-						.displayMessage(
-								"Training",
-								"Sorry, but the workbench currently cannot be used to query this network type.\n"
-										+ "You will need to create a program with the Encog Core to query it.");
-			} else if (logic instanceof SimpleRecurrentLogic) {
-				NetworkQueryFrame query = new NetworkQueryFrame(
-						((BasicNetwork) this.getEncogObject()));
-				query.setVisible(true);
-			} else {
-				EncogWorkBench
-						.displayMessage(
-								"Training",
-								"Sorry, but the workbench currently cannot be used to query this network type.\n"
-										+ "You will need to create a program with the Encog Core to query it.");
+				if (logic instanceof ART1Logic) {
+					EncogWorkBench
+							.displayMessage(
+									"Training",
+									"Sorry, but the workbench currently cannot be used to query this network type.\n"
+											+ "You will need to create a program with the Encog Core to query it.");
+				} else if (logic instanceof BAMLogic) {
+					EncogWorkBench
+							.displayMessage(
+									"Training",
+									"Sorry, but the workbench currently cannot be used to query this network type.\n"
+											+ "You will need to create a program with the Encog Core to query it.");
+				} else if (logic instanceof BoltzmannLogic) {
+					EncogWorkBench
+							.displayMessage(
+									"Training",
+									"Sorry, but the workbench currently cannot be used to query this network type.\n"
+											+ "You will need to create a program with the Encog Core to query it.");
+				} else if (logic instanceof FeedforwardLogic) {
+					NetworkQueryFrame query = new NetworkQueryFrame(
+							((BasicNetwork) this.getEncogObject()));
+					query.setVisible(true);
+				} else if (logic instanceof HopfieldLogic) {
+					EncogWorkBench
+							.displayMessage(
+									"Training",
+									"Sorry, but the workbench currently cannot be used to query this network type.\n"
+											+ "You will need to create a program with the Encog Core to query it.");
+				} else if (logic instanceof SimpleRecurrentLogic) {
+					NetworkQueryFrame query = new NetworkQueryFrame(
+							((BasicNetwork) this.getEncogObject()));
+					query.setVisible(true);
+				} else {
+					EncogWorkBench
+							.displayMessage(
+									"Training",
+									"Sorry, but the workbench currently cannot be used to query this network type.\n"
+											+ "You will need to create a program with the Encog Core to query it.");
+				}
 			}
-		}
-		}
-		catch(Throwable t)
-		{
-			EncogWorkBench.displayError("Error", t, ((BasicNetwork) this.getEncogObject()), null);
+		} catch (Throwable t) {
+			EncogWorkBench.displayError("Error", t,
+					((BasicNetwork) this.getEncogObject()), null);
 		}
 
 	}
@@ -429,34 +420,33 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 	}
 
 	public boolean close() {
-		if( !performValidate(false, false) )
-		{
-			if( (System.currentTimeMillis()-this.lastPopup)>1000 )
-			{
-			if( !EncogWorkBench.askQuestion("Unconnected Layers", "There are unconnected layers that will be lost if you close this network.\nDo you wish to continue?"))
-			{
-				// this is a total hack, but for some reason this event fires twice?
-				this.lastPopup = System.currentTimeMillis();
-				return false;
-			}
-			}
-			else
-			{
+		if (!performValidate(false, false)) {
+			if ((System.currentTimeMillis() - this.lastPopup) > 1000) {
+				if (!EncogWorkBench
+						.askQuestion(
+								"Unconnected Layers",
+								"There are unconnected layers that will be lost if you close this network.\nDo you wish to continue?")) {
+					// this is a total hack, but for some reason this event fires twice?
+					this.lastPopup = System.currentTimeMillis();
+					return false;
+				}
+			} else {
 				return true;
 			}
 		}
-		
+
 		if (this.networkDiagram != null) {
 			this.networkDiagram.close();
 			this.networkDiagram = null;
 		}
-		
+
 		return true;
 	}
 
 	public void performProperties() {
-		MapDataFrame frame = new MapDataFrame(((BasicNetwork) this
-				.getEncogObject()).getProperties(), "Network Properties");
+		MapDataFrame frame = new MapDataFrame(
+				((BasicNetwork) this.getEncogObject()).getProperties(),
+				"Network Properties");
 		frame.setVisible(true);
 	}
 
@@ -468,6 +458,14 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 			this.comboLogic.setSelectedIndex(3);
 		else if (logic instanceof BoltzmannLogic)
 			this.comboLogic.setSelectedIndex(4);
+		//----------------------------------------------------------------------------------------------
+		// watch out! SOMLogic inherits from SimpleRecurrentLogic which inherits from FeedforwardLogic.
+		// "instanceof" returns true if the test is performed against ANY of these classes,
+		// thus, the ORDER of the test is critical: put children first, then parents (so to speak).
+		//----------------------------------------------------------------------------------------------
+		else if (logic instanceof SOMLogic) // added by SYSBERG
+			this.comboLogic.setSelectedIndex(6); // added by SYSBERG
+		//---------------------------------------------------------------------------------------------
 		else if (logic instanceof FeedforwardLogic)
 			this.comboLogic.setSelectedIndex(0);
 		else if (logic instanceof HopfieldLogic)
@@ -495,44 +493,44 @@ public class NetworkTab extends EncogCommonTab implements ActionListener {
 		case 5:
 			newLogic = new HopfieldLogic();
 			break;
+		case 6: // added by SYSBERG
+			newLogic = new SOMLogic(); // added by SYSBERG
+			break; // added by SYSBERG
 		default:
 			newLogic = new SimpleRecurrentLogic();
 			break;
 		}
 
 		BasicNetwork network = (BasicNetwork) this.getEncogObject();
-		if (!network.getLogic().getClass().getSimpleName().equals(
-				newLogic.getClass().getSimpleName())) {
+		if (!network.getLogic().getClass().getSimpleName()
+				.equals(newLogic.getClass().getSimpleName())) {
 			try {
 				newLogic.init(network);
 			} catch (Exception e) {
-				EncogWorkBench.displayError("Error",e, network, null);
+				EncogWorkBench.displayError("Error", e, network, null);
 				setLogic();
 			}
 			network.setLogic(newLogic);
 		}
 	}
-	
-	public void analyzeWeights()
-	{
+
+	public void analyzeWeights() {
 		NEATSynapse neat = null;
 		BasicNetwork network = (BasicNetwork) this.getEncogObject();
-		
-		for(Synapse synapse: network.getStructure().getSynapses())
-		{
-			if( synapse instanceof NEATSynapse )
-				neat = (NEATSynapse)synapse;
+
+		for (Synapse synapse : network.getStructure().getSynapses()) {
+			if (synapse instanceof NEATSynapse)
+				neat = (NEATSynapse) synapse;
 		}
-		
-		if( neat==null )
-		{		
+
+		if (neat == null) {
 			AnalyzeWeightsTab tab = new AnalyzeWeightsTab(this.getEncogObject());
-			EncogWorkBench.getInstance().getMainWindow().openModalTab(tab, "Analyze Weights");
+			EncogWorkBench.getInstance().getMainWindow()
+					.openModalTab(tab, "Analyze Weights");
+		} else {
+			NEATTab tab = new NEATTab(network, neat);
+			EncogWorkBench.getInstance().getMainWindow()
+					.openModalTab(tab, "NEAT Network");
 		}
-		else
-		{
-			NEATTab tab = new NEATTab(network ,neat);
-			EncogWorkBench.getInstance().getMainWindow().openModalTab(tab, "NEAT Network");
-		}		
 	}
 }
