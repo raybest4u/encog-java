@@ -30,23 +30,14 @@
 
 package org.encog.workbench.process.generate;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import org.encog.neural.data.basic.BasicNeuralDataSet;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.layers.ContextLayer;
 import org.encog.neural.networks.layers.Layer;
 import org.encog.neural.networks.layers.RadialBasisFunctionLayer;
-import org.encog.neural.networks.synapse.DirectSynapse;
-import org.encog.neural.networks.synapse.OneToOneSynapse;
 import org.encog.neural.networks.synapse.Synapse;
-import org.encog.neural.networks.synapse.SynapseType;
-import org.encog.neural.networks.synapse.WeightlessSynapse;
 
 public class GenerateJava extends BasicGenerate {
 
