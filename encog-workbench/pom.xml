@@ -12,9 +12,9 @@
 	</parent>
 	<packaging>jar</packaging>
 
-	<artifactId>encog-core</artifactId>
-	<name>Encog Core library</name>
-	<description>Encog Java Neural Network Framework - Core library</description>
+	<artifactId>encog-workbench</artifactId>
+	<name>Encog Workbench</name>
+	<description>Encog Java Neural Network Framework - Workbench</description>
 
 	<build>
 		<!-- use src/main/java for resources as well -->
@@ -28,6 +28,12 @@
 					<exclude>**/*.java</exclude>
 				</excludes>
 			</resource>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>*.csv</include>
+				</includes>
+			</resource>
 		</resources>
 
 		<!-- use src/main/java for test resources as well -->
@@ -37,6 +43,12 @@
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
+			</testResource>
+			<testResource>
+				<directory>.</directory>
+				<includes>
+					<include>*.csv</include>
+				</includes>
 			</testResource>
 		</testResources>
 	</build>
@@ -54,17 +66,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.0.0</version>
+			<groupId>jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.0.13</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.jocl</groupId>
-			<artifactId>jocl</artifactId>
-			<version>0.1.3a-beta</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/jar/JOCL-0.1.3a-beta.jar</systemPath>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>encog-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>encog-javascript</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>

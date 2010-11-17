@@ -1,0 +1,82 @@
+<!-- This POM makes Encog a Maven artifact, accessible from other programs 
+	using Maven. Autor of this POM: iirekm -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.encog</groupId>
+	<artifactId>encog</artifactId>
+	<version>2.6.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Encog</name>
+	<description>Encog Java Neural Network Framework</description>
+
+	<modules>
+		<module>../encog-core</module>
+		<module>../encog-examples</module>
+		<module>../encogscript-javascript</module>
+		<module>../encog-workbench</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<!-- use javac 1.5 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+
+			<!-- build also source jar - useful for working in Eclipse -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<extensions>
+			<!-- needed to deploy to java.net repo -->
+			<extension>
+				<groupId>org.jvnet.wagon-svn</groupId>
+				<artifactId>wagon-svn</artifactId>
+				<version>1.9</version>
+			</extension>
+		</extensions>
+	</build>
+
+	<distributionManagement>
+		<repository>
+			<id>java.net-deploy</id>
+			<url>java-net:/maven2-repository/trunk/repository/</url>
+		</repository>
+	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.1</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-jdk14</artifactId>
+				<version>1.6.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
