@@ -40,7 +40,6 @@ import java.util.Map;
 import org.encog.EncogError;
 import org.encog.persist.annotations.EGIgnore;
 import org.encog.persist.location.ResourcePersistence;
-import org.encog.util.obj.ModuleHandler.ClassInfo;
 
 /**
  * This class includes some utilities to be used with reflection. This are
@@ -168,11 +167,12 @@ public final class ReflectionUtil {
 		return (obj instanceof File) || (obj instanceof String);
 	}
 
+
 	/**
 	 * Load the classmap file. This allows classes to be resolved using just the
 	 * simple name.
 	 */
-	public static void loadStandardClassmap() {
+	public static void loadClassmap() {
 		String currentClass = null;
 		try {
 			final ResourcePersistence resource = new ResourcePersistence(
@@ -193,23 +193,6 @@ public final class ReflectionUtil {
 			throw new EncogError(e);
 		} catch (final ClassNotFoundException e) {
 			throw new EncogError("Unknown class: " + currentClass);
-		}
-
-	}
-
-	/**
-	 * Load the classmap file. This allows classes to be resolved using just the
-	 * simple name.
-	 */
-	public static void loadClassmap() {
-		loadStandardClassmap();
-		final ClassInfo[] info = ModuleHandler.createModuleList("org.encog.*");
-
-		for (final ClassInfo inf : info) {
-			final Class<?> c = inf.theclass;
-			if (!ReflectionUtil.classMap.containsKey(c.getSimpleName())) {
-				ReflectionUtil.classMap.put(c.getSimpleName(), c);
-			}
 		}
 	}
 
