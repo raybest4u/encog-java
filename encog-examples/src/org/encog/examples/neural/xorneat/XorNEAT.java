@@ -80,6 +80,7 @@ public class XorNEAT {
 
 		BasicNetwork network = train.getNetwork();
 
+		network.clearContext();
 		// test the neural network
 		System.out.println("Neural Network Results:");
 		for(NeuralDataPair pair: trainingSet ) {
