@@ -319,7 +319,7 @@ public final class NetworkCODEC {
 
 						double value = array[result++];
 
-						final double oldValue = synapse.getMatrix().get(z, x);
+						final double oldValue = contextSynapse.getMatrix().get(z, x);
 
 						// if this connection is limited, do not update it to
 						// anything but zero
@@ -338,6 +338,8 @@ public final class NetworkCODEC {
 
 		return result;
 	}
+
+
 
 	/**
 	 * Private constructor.
