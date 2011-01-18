@@ -179,13 +179,13 @@ public class BasicLayerPersistor implements Persistor {
 			ActivationFunction activationFunction, WriteXML out) {
 		if (activationFunction != null) {
 			out.beginTag(BasicLayerPersistor.TAG_ACTIVATION);
-			out.beginTag(activationFunction.getClass().getSimpleName());
 			String[] names = activationFunction.getParamNames();
 			for (int i = 0; i < names.length; i++) {
 				String str = names[i];
 				double d = activationFunction.getParams()[i];
 				out.addAttribute(str, "" + CSVFormat.EG_FORMAT.format(d, 10));
 			}
+			out.beginTag(activationFunction.getClass().getSimpleName());
 			out.endTag();
 			out.endTag();
 		}
@@ -211,12 +211,12 @@ public class BasicLayerPersistor implements Persistor {
 						index = i;
 						break;
 					}
-
-					if (index != -1) {
-						String str = in.getTag().getAttributeValue(key);
-						double d = CSVFormat.EG_FORMAT.parse(str);
-						result.setParam(index, d);
-					}
+				}
+				
+				if (index != -1) {
+					String str = in.getTag().getAttributeValue(key);
+					double d = CSVFormat.EG_FORMAT.parse(str);
+					result.setParam(index, d);
 				}
 			}
 
