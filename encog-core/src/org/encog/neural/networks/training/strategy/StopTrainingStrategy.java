@@ -131,8 +131,8 @@ public class StopTrainingStrategy implements EndTrainingStrategy {
 	public void postIteration() {
 
 		if (this.ready) {
-			if (Math.abs(this.bestError 
-					- this.train.getError()) < this.minImprovement) {
+			if (this.bestError 
+					- this.train.getError() < this.minImprovement) {
 				this.badCycles++;
 				if (this.badCycles > this.toleratedCycles) {
 					this.shouldStop = true;
