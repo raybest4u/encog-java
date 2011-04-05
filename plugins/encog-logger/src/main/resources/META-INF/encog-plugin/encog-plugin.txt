@@ -1,0 +1,2 @@
+Encog,1
+org.encog.plugins.logging.EncogLoggingPlugin
