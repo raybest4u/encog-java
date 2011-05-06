@@ -1,9 +1,7 @@
 <projectDescription>
-  <name>encog-examples</name>
+  <name>encog-plugin-opencl</name>
   <comment>Heaton Research OpenCL Plugin for Encog. NO_M2ECLIPSE_SUPPORT: Project files created with the maven-eclipse-plugin are not supported in M2Eclipse.</comment>
-  <projects>
-    <project>encog-core</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>

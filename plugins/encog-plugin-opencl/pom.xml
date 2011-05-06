@@ -32,7 +32,7 @@ Authors of this POM file: iirekm, jheaton
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.encog</groupId>
-	<artifactId>encog-examples</artifactId>
+	<artifactId>encog-plugin-opencl</artifactId>
 	<version>3.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Heaton Research OpenCL Plugin</name>
@@ -46,8 +46,8 @@ Authors of this POM file: iirekm, jheaton
 		</license>
 	</licenses>
   	<scm>
-    		<connection>scm:svn:http://encog-java.googlecode.com/svn/trunk/encog-plugin-opencl/</connection>
-    		<developerConnection>scm:svn:https://encog-java.googlecode.com/svn/trunk/encog-plugin-opencl/</developerConnection>
+    		<connection>scm:svn:http://encog-java.googlecode.com/svn/trunk/plugins/encog-plugin-opencl/</connection>
+    		<developerConnection>scm:svn:https://encog-java.googlecode.com/svn/trunk/plugins/encog-plugin-opencl/</developerConnection>
     		<url>http://code.google.com/p/encog-java/source/browse/</url>
   	</scm>
 	<developers>
