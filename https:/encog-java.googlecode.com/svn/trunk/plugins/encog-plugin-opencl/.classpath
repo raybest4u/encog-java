@@ -1,0 +1,14 @@
+<classpath>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="/encog-core"/>
+  <classpathentry kind="var" path="M2_REPO/com/nativelibs4java/javacl/1.0-beta-6/javacl-1.0-beta-6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/nativelibs4java/javacl-core/1.0-beta-6/javacl-core-1.0-beta-6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/jnaerator/jna-jnaerator/3.2.7/jna-jnaerator-3.2.7.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/jnaerator/jnaerator-runtime/0.9.6/jnaerator-runtime-0.9.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/nativelibs4java/nativelibs4java-utils/1.1/nativelibs4java-utils-1.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/ochafik/ochafik-util/0.9.6/ochafik-util-0.9.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/nativelibs4java/opencl4java/1.0-beta-6/opencl4java-1.0-beta-6.jar"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+</classpath>
