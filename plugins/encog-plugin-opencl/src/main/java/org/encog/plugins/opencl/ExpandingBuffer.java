@@ -29,8 +29,7 @@ public class ExpandingBuffer {
 		}
 		this.buffer = NIOUtils.directFloats(size, context.getByteOrder());
 		if( isOutput ) {
-			this.clBuffer = context.createFloatBuffer(Usage.Output, size);
-			//this.clBuffer = context.createFloatBuffer(Usage.Output, buffer, false);
+			this.clBuffer = context.createFloatBuffer(Usage.Output, buffer, false);
 		} else {
 			this.clBuffer = context.createFloatBuffer(Usage.Input, buffer, false);
 		}

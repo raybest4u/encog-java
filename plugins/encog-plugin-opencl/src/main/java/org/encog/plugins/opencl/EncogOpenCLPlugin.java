@@ -15,6 +15,7 @@ import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLFloatBuffer;
 import com.nativelibs4java.opencl.CLIntBuffer;
 import com.nativelibs4java.opencl.CLKernel;
+import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
@@ -115,6 +116,7 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 			final int inputSize) {
 		
 		int[] paramArray = {startIndex,outputIndex,outputSize,inputIndex,inputSize};
+		float[] layerOutputF = new float[outputSize];
 		
 		// create NIO buffers		
 		this.weightsBuffer.setSize(weights.length);
@@ -136,9 +138,11 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		}
 		//kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 		
-		FloatBuffer f = this.outputBuffer.getCLBuffer().read(queue, kernelCompletion);
+		this.outputBuffer.getCLBuffer().map(queue, MapFlags.Write, kernelCompletion);
+		this.outputBuffer.getBuffer().rewind();
+		this.outputBuffer.getBuffer().get(layerOutputF, 0, outputSize);
 		for(int i=0;i<outputSize;i++) {
-			layerOutput[outputIndex+i] = f.get(i);
+			layerOutput[outputIndex+i] = layerOutputF[i];
 		}
 		
 		if( kernelCompletion!=null )
