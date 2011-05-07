@@ -24,15 +24,22 @@ import com.nativelibs4java.util.NIOUtils;
 
 public class EncogOpenCLPlugin implements EncogPluginType1 {
 	
+	public static final int PARAM_COUNT = 5;
+	
 	private CLContext context;
 	private CLQueue queue;
 	private CLProgram program;
 	private CLKernel kernel;
+	private IntBuffer paramBuffer;
+	private CLIntBuffer paramCLBuffer;
 	
 	public EncogOpenCLPlugin() {
-		
+				
 		this.context = JavaCL.createBestContext();
 		this.queue = context.createDefaultQueue();
+		
+		this.paramBuffer = NIOUtils.directInts(PARAM_COUNT, context.getByteOrder());
+		this.paramCLBuffer = context.createIntBuffer(Usage.Input, paramBuffer, false);
 
 		String calcLayerFloat = ResourceInputStream.readResourceAsString("org/encog/plugins/opencl/kernels/calcLayerFloat.cl");
 		
@@ -120,20 +127,18 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		
 		// create NIO buffers
 		FloatBuffer weightBuffer = NIOUtils.directFloats(weightsArray.length, context.getByteOrder());
-		IntBuffer paramBuffer = NIOUtils.directInts(paramArray.length, context.getByteOrder());
 		FloatBuffer layerOutputBuffer = NIOUtils.directFloats(layerOutputArray.length, context.getByteOrder());
 		
+		paramBuffer.rewind();
 		paramBuffer.put(paramArray);
 		layerOutputBuffer.put(layerOutputArray);
 		weightBuffer.put(weightsArray);
 				
 		// create CL buffers
 		CLFloatBuffer weightCLBuffer = context.createFloatBuffer(Usage.Input, weightBuffer, true);
-		CLIntBuffer paramCLBuffer = context.createIntBuffer(Usage.Input, paramBuffer, true);
-		CLFloatBuffer layerOutputCLBuffer = context.createFloatBuffer(Usage.Input, layerOutputBuffer, true);
-		
+		CLFloatBuffer layerOutputCLBuffer = context.createFloatBuffer(Usage.Input, layerOutputBuffer, true);		
 		CLFloatBuffer outputCLBuffer = context.createFloatBuffer(Usage.Output, outputSize);
-		
+				
 		// execute
 		CLEvent kernelCompletion;
 		// The same kernel can be safely used by different threads, as long as setArgs + enqueueNDRange are in a synchronized block
@@ -152,7 +157,6 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		
 		// release
 		weightCLBuffer.release();
-		paramCLBuffer.release();
 		layerOutputCLBuffer.release();
 		outputCLBuffer.release();
 		
