@@ -143,10 +143,10 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		}
 		kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 		
-		/*FloatBuffer f = outputCLBuffer.read(queue, kernelCompletion);
+		FloatBuffer f = outputCLBuffer.read(queue, kernelCompletion);
 		for(int i=0;i<outputSize;i++) {
 			layerOutput[outputIndex+i] = f.get(i);
-		}*/
+		}
 		
 		kernelCompletion.release();
 		
