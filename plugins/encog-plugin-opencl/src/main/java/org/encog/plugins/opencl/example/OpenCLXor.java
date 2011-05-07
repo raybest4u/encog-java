@@ -87,7 +87,7 @@ public class OpenCLXor {
 			System.out
 					.println("Epoch #" + epoch + " Error:" + train.getError());
 			epoch++;
-		} while(train.getError() > 0.01);
+		} while(train.getError() > 0.0000000001 && epoch<5000);
 		
 		
 		EncogUtility.evaluate(network, trainingSet);

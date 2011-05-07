@@ -122,7 +122,6 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		FloatBuffer weightBuffer = NIOUtils.directFloats(weightsArray.length, context.getByteOrder());
 		IntBuffer paramBuffer = NIOUtils.directInts(paramArray.length, context.getByteOrder());
 		FloatBuffer layerOutputBuffer = NIOUtils.directFloats(layerOutputArray.length, context.getByteOrder());
-		FloatBuffer outputBuffer = NIOUtils.directFloats(outputSize, context.getByteOrder());
 		
 		paramBuffer.put(paramArray);
 		layerOutputBuffer.put(layerOutputArray);
@@ -132,7 +131,8 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		CLFloatBuffer weightCLBuffer = context.createFloatBuffer(Usage.Input, weightBuffer, true);
 		CLIntBuffer paramCLBuffer = context.createIntBuffer(Usage.Input, paramBuffer, true);
 		CLFloatBuffer layerOutputCLBuffer = context.createFloatBuffer(Usage.Input, layerOutputBuffer, true);
-		CLFloatBuffer outputCLBuffer  = context.createFloatBuffer(Usage.Output, outputBuffer, false);
+		
+		CLFloatBuffer outputCLBuffer = context.createFloatBuffer(Usage.Output, outputSize);
 		
 		// execute
 		CLEvent kernelCompletion;
@@ -143,10 +143,12 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		}
 		kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 		
-		FloatBuffer f = outputCLBuffer.read(queue, kernelCompletion);
+		/*FloatBuffer f = outputCLBuffer.read(queue, kernelCompletion);
 		for(int i=0;i<outputSize;i++) {
 			layerOutput[outputIndex+i] = f.get(i);
-		}
+		}*/
+		
+		kernelCompletion.release();
 		
 		// release
 		weightCLBuffer.release();
