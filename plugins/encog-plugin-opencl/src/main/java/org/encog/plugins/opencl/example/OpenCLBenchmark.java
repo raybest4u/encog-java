@@ -39,7 +39,7 @@ public class OpenCLBenchmark {
 	public static final int ROW_COUNT = 100;
 	public static final int INPUT_COUNT = 10;
 	public static final int OUTPUT_COUNT = 1;
-	public static final int HIDDEN_COUNT = 20;
+	public static final int HIDDEN_COUNT = 200;
 	public static final int ITERATIONS = 10;
 	public static final int AVG_COUNT = 20;
 
