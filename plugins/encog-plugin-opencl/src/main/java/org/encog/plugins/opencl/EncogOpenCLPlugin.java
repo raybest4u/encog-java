@@ -115,28 +115,36 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		int[] paramArray = {startIndex,outputIndex,inputIndex,inputSize};
 		float[] weightsArray = new float[weights.length];
 		EngineArray.arrayCopy(weights, weightsArray);
+		float[] layerOutputArray = new float[layerOutput.length];
+		EngineArray.arrayCopy(layerOutputArray, layerOutput);
 		
 		// create NIO buffers
 		FloatBuffer weightBuffer = NIOUtils.directFloats(weightsArray.length, context.getByteOrder());
 		IntBuffer paramBuffer = NIOUtils.directInts(paramArray.length, context.getByteOrder());
-		FloatBuffer outputBuffer = NIOUtils.directFloats(layerOutput.length, context.getByteOrder());
+		FloatBuffer layerOutputBuffer = NIOUtils.directFloats(layerOutputArray.length, context.getByteOrder());
+		FloatBuffer outputBuffer = NIOUtils.directFloats(outputSize, context.getByteOrder());
 		
+		paramBuffer.put(paramArray);
+		layerOutputBuffer.put(layerOutputArray);
+		weightBuffer.put(weightsArray);
+				
 		// create CL buffers
 		CLFloatBuffer weightCLBuffer = context.createFloatBuffer(Usage.Input, weightBuffer, true);
 		CLIntBuffer paramCLBuffer = context.createIntBuffer(Usage.Input, paramBuffer, true);
+		CLFloatBuffer layerOutputCLBuffer = context.createFloatBuffer(Usage.Input, layerOutputBuffer, true);
 		CLFloatBuffer outputCLBuffer  = context.createFloatBuffer(Usage.Output, outputBuffer, false);
 		
 		// execute
 		CLEvent kernelCompletion;
 		// The same kernel can be safely used by different threads, as long as setArgs + enqueueNDRange are in a synchronized block
 		synchronized (kernel) {
-		    kernel.setArgs(weightCLBuffer,paramCLBuffer,outputCLBuffer);
+		    kernel.setArgs(weightCLBuffer,paramCLBuffer,layerOutputCLBuffer,outputCLBuffer);
 		    kernelCompletion = kernel.enqueueNDRange(queue, new int[] { outputSize }, new int[] { 1 } );
 		}
 		kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 		
-		for(int i=0;i<layerOutput.length;i++) {
-			layerOutput[i] = outputBuffer.get(i);
+		for(int i=0;i<outputSize;i++) {
+			layerOutput[outputIndex+i] = outputBuffer.get(i);
 		}
 		
 		// release

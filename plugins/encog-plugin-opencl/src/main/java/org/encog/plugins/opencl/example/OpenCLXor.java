@@ -79,7 +79,8 @@ public class OpenCLXor {
 		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
 		final MLTrain train = new Backpropagation(network, trainingSet, 0.7, 0.8);
 		
-		EncogUtility.trainToError(train, 0.01);
+		train.iteration();
+		EncogUtility.trainToError(train, 0.01);		
 		EncogUtility.evaluate(network, trainingSet);
 	}
 }
