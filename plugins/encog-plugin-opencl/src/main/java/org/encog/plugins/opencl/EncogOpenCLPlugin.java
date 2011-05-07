@@ -112,11 +112,11 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 			final int outputIndex, final int outputSize, final int inputIndex,
 			final int inputSize) {
 		
-		int[] paramArray = {startIndex,outputIndex,inputIndex,inputSize};
+		int[] paramArray = {startIndex,outputIndex,outputSize,inputIndex,inputSize};
 		float[] weightsArray = new float[weights.length];
 		EngineArray.arrayCopy(weights, weightsArray);
 		float[] layerOutputArray = new float[layerOutput.length];
-		EngineArray.arrayCopy(layerOutputArray, layerOutput);
+		EngineArray.arrayCopy(layerOutput,layerOutputArray);
 		
 		// create NIO buffers
 		FloatBuffer weightBuffer = NIOUtils.directFloats(weightsArray.length, context.getByteOrder());
@@ -150,6 +150,7 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		// release
 		weightCLBuffer.release();
 		paramCLBuffer.release();
+		layerOutputCLBuffer.release();
 		outputCLBuffer.release();
 		
 

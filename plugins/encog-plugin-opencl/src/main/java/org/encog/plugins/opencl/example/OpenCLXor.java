@@ -25,6 +25,7 @@ package org.encog.plugins.opencl.example;
 
 import org.encog.Encog;
 import org.encog.engine.network.activation.ActivationSigmoid;
+import org.encog.mathutil.randomize.ConsistentRandomizer;
 import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.train.MLTrain;
@@ -74,12 +75,13 @@ public class OpenCLXor {
 		network.addLayer(new BasicLayer(new ActivationSigmoid(),true,1));
 		network.getStructure().finalizeStructure();
 		network.reset();
+		new ConsistentRandomizer(-1,1).randomize(network);
 
 		// create training data
 		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
 		final MLTrain train = new Backpropagation(network, trainingSet, 0.7, 0.8);
 		
-		train.iteration();
+		//train.iteration();
 		EncogUtility.trainToError(train, 0.01);		
 		EncogUtility.evaluate(network, trainingSet);
 	}
