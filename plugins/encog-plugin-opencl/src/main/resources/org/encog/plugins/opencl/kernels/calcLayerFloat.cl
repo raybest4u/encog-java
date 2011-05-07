@@ -1,7 +1,8 @@
 __kernel void calculateLayer(
 	__global const float *weights,
 	__global const int *param,
-	__global float *layerOutput)
+	__global const int *layerOutput,
+	__global float *output)
 {
 	int gid = get_global_id(0);
 	
@@ -13,11 +14,9 @@ __kernel void calculateLayer(
 	int index = startIndex;
 	const int limitY = inputIndex + inputSize;
 
-	int x = outputIndex + gid;
-
 	float sum = 0;
 	for (int y = inputIndex; y < limitY; y++) {
 		sum += weights[index++] * layerOutput[y];
 	}
-	layerOutput[x] = sum;
+	output[gid] = sum;
 }
