@@ -15,9 +15,11 @@ public class ExpandingBuffer {
 	private CLFloatBuffer clBuffer;
 	private CLContext context;
 	private int lastSize;
+	private boolean isOutput;
 	
-	public ExpandingBuffer(CLContext context) {
+	public ExpandingBuffer(CLContext context, boolean isOutput) {
 		this.context = context;
+		this.isOutput = isOutput;
 		this.lastSize = -1;
 	}
 	
@@ -26,7 +28,12 @@ public class ExpandingBuffer {
 			return;
 		}
 		this.buffer = NIOUtils.directFloats(size, context.getByteOrder());
-		this.clBuffer = context.createFloatBuffer(Usage.Input, buffer, false);
+		if( isOutput ) {
+			this.clBuffer = context.createFloatBuffer(Usage.Output, size);
+			//this.clBuffer = context.createFloatBuffer(Usage.Output, buffer, false);
+		} else {
+			this.clBuffer = context.createFloatBuffer(Usage.Input, buffer, false);
+		}
 		this.lastSize = size;
 	}
 

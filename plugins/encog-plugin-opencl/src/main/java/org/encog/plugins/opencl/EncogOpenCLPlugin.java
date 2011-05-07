@@ -34,6 +34,7 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 	private CLIntBuffer paramCLBuffer;
 	private ExpandingBuffer weightsBuffer;
 	private ExpandingBuffer layerOutputBuffer;
+	private ExpandingBuffer outputBuffer;
 
 	public EncogOpenCLPlugin() {
 				
@@ -43,8 +44,9 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		this.paramBuffer = NIOUtils.directInts(PARAM_COUNT, context.getByteOrder());
 		this.paramCLBuffer = context.createIntBuffer(Usage.Input, paramBuffer, false);
 		
-		this.weightsBuffer = new ExpandingBuffer(context);
-		this.layerOutputBuffer = new ExpandingBuffer(context);
+		this.weightsBuffer = new ExpandingBuffer(context,false);
+		this.layerOutputBuffer = new ExpandingBuffer(context,false);
+		this.outputBuffer = new ExpandingBuffer(context,true);
 
 		String calcLayerFloat = ResourceInputStream.readResourceAsString("org/encog/plugins/opencl/kernels/calcLayerFloat.cl");
 		
@@ -117,26 +119,24 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		// create NIO buffers		
 		this.weightsBuffer.setSize(weights.length);
 		this.layerOutputBuffer.setSize(layerOutput.length);
+		this.outputBuffer.setSize(outputSize);
 		
 		paramBuffer.rewind();
 		paramBuffer.put(paramArray);
 		
 		this.weightsBuffer.set(weights);
-		this.layerOutputBuffer.set(layerOutput);
-				
-		// create CL buffers				
-		CLFloatBuffer outputCLBuffer = context.createFloatBuffer(Usage.Output, outputSize);
+		this.layerOutputBuffer.set(layerOutput);		
 				
 		// execute
 		CLEvent kernelCompletion = null;
 		// The same kernel can be safely used by different threads, as long as setArgs + enqueueNDRange are in a synchronized block
 		synchronized (kernel) {
-		    kernel.setArgs(this.weightsBuffer.getCLBuffer(),paramCLBuffer,this.layerOutputBuffer.getCLBuffer(),outputCLBuffer);
+		    kernel.setArgs(this.weightsBuffer.getCLBuffer(),paramCLBuffer,this.layerOutputBuffer.getCLBuffer(),this.outputBuffer.getCLBuffer());
 		    kernelCompletion = kernel.enqueueNDRange(queue, new int[] { outputSize }, new int[] { 1 } );
 		}
 		//kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 		
-		FloatBuffer f = outputCLBuffer.read(queue, kernelCompletion);
+		FloatBuffer f = this.outputBuffer.getCLBuffer().read(queue, kernelCompletion);
 		for(int i=0;i<outputSize;i++) {
 			layerOutput[outputIndex+i] = f.get(i);
 		}
@@ -144,10 +144,6 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		if( kernelCompletion!=null )
 			kernelCompletion.release();
 		
-		// release
-		outputCLBuffer.release();
-		
-
 		return startIndex+(inputSize*outputSize);
 	}
 
