@@ -21,6 +21,8 @@ public class SimpleTest {
 		CLContext context = JavaCL.createBestContext();
 		CLQueue queue = context.createDefaultQueue();
 
+		float[] A = { 1.0f, 2.0f, 3.0f, 4.0f };
+		float[] B = { 5.0f, 6.0f, 7.0f, 8.0f };
 				
 		String myKernelSource = ResourceInputStream.readResourceAsString("org/encog/plugins/opencl/kernels/simple.cl");
 		
@@ -28,8 +30,8 @@ public class SimpleTest {
 		FloatBuffer array2 = NIOUtils.directFloats(10, context.getByteOrder());
 		FloatBuffer resultArray = NIOUtils.directFloats(10, context.getByteOrder());
 		
-		array1.put(0,2);
-		array2.put(0,2);
+		array1.put(A);
+		array2.put(B);
 		
 		CLFloatBuffer b1 = context.createFloatBuffer(Usage.Input, array1, true);
 		CLFloatBuffer b2 = context.createFloatBuffer(Usage.Input, array2, true);
@@ -50,16 +52,13 @@ public class SimpleTest {
 			CLEvent kernelCompletion;
 			// The same kernel can be safely used by different threads, as long as setArgs + enqueueNDRange are in a synchronized block
 			synchronized (kernel) {
-			    // setArgs will throw an exception at runtime if the types / sizes of the arguments are incorrect
-			    kernel.setArgs(b1,b2,b3);
-
-			   // Ask for 1-dimensional execution of length dataSize, with auto choice of local workgroup size :
-			    kernelCompletion = kernel.enqueueNDRange(queue, new int[] { 10 }, new int[] { 1 } );
+			    //kernel.setArgs(b1,b2,b3);
+			    kernelCompletion = kernel.enqueueNDRange(queue, new int[] { A.length }, new int[] { 1 } );
 			}
 			kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 			
-			for(int i=0;i<3;i++) {
-				System.out.println(resultArray.get(i));
+			for(int i=0;i<A.length;i++) {
+				System.out.println( A[i] + " * " + B[i] + " = " + resultArray.get(i));
 			}
 			
 			
