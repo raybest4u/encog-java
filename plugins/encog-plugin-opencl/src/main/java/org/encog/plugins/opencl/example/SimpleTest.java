@@ -57,8 +57,10 @@ public class SimpleTest {
 			}
 			kernelCompletion.waitFor(); // better not to wait for it but to pass it as a dependent event to some other queuable operation (CLBuffer.read, for instance)
 			
+			FloatBuffer f = b3.read(queue, kernelCompletion);
+			
 			for(int i=0;i<A.length;i++) {
-				System.out.println( A[i] + " * " + B[i] + " = " + resultArray.get(i));
+				System.out.println( A[i] + " * " + B[i] + " = " + f.get(i));
 			}
 			
 			
