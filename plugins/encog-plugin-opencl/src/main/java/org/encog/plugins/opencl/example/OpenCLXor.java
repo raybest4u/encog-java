@@ -31,7 +31,7 @@ import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.ml.train.MLTrain;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
-import org.encog.neural.networks.training.propagation.back.Backpropagation;
+import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 import org.encog.plugins.opencl.EncogOpenCLPlugin;
 import org.encog.util.simple.EncogUtility;
 
@@ -79,10 +79,17 @@ public class OpenCLXor {
 
 		// create training data
 		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
-		final MLTrain train = new Backpropagation(network, trainingSet, 0.7, 0.8);
+		final MLTrain train = new ResilientPropagation(network, trainingSet);
+		//
+		int epoch = 1;
+		do {
+			train.iteration();
+			System.out
+					.println("Epoch #" + epoch + " Error:" + train.getError());
+			epoch++;
+		} while(train.getError() > 0.01);
 		
-		//train.iteration();
-		EncogUtility.trainToError(train, 0.01);		
+		
 		EncogUtility.evaluate(network, trainingSet);
 	}
 }
