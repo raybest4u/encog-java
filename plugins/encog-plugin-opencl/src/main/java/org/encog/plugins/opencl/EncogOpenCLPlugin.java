@@ -32,6 +32,8 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 	private CLKernel kernel;
 	private IntBuffer paramBuffer;
 	private CLIntBuffer paramCLBuffer;
+	private FloatBuffer weightBuffer;
+	private CLFloatBuffer weightCLBuffer;
 	
 	public EncogOpenCLPlugin() {
 				
@@ -49,18 +51,6 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		} catch (CLBuildException e) {
 			throw new EncogError(e);
 		}
-
-		
-		/*FloatBuffer array1 = NIOUtils.directFloats(10, context.getByteOrder());
-		FloatBuffer array2 = NIOUtils.directFloats(10, context.getByteOrder());
-		FloatBuffer resultArray = NIOUtils.directFloats(10, context.getByteOrder());
-		
-		array1.put(A);
-		array2.put(B);
-		
-		CLFloatBuffer b1 = context.createFloatBuffer(Usage.Input, array1, true);
-		CLFloatBuffer b2 = context.createFloatBuffer(Usage.Input, array2, true);
-		CLFloatBuffer b3 = context.createFloatBuffer(Usage.Output, resultArray, false);*/
 	}
 
 	@Override
@@ -109,6 +99,13 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 			yi++;
 		}
 	}
+	
+	private void allocateWeights(int size) {
+		if( this.weightBuffer==null ) {
+			this.weightBuffer = NIOUtils.directFloats(size, context.getByteOrder());
+			this.weightCLBuffer = context.createFloatBuffer(Usage.Input, weightBuffer, false);
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -125,17 +122,18 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		float[] layerOutputArray = new float[layerOutput.length];
 		EngineArray.arrayCopy(layerOutput,layerOutputArray);
 		
-		// create NIO buffers
-		FloatBuffer weightBuffer = NIOUtils.directFloats(weightsArray.length, context.getByteOrder());
+		// create NIO buffers		
+		allocateWeights(weights.length);
 		FloatBuffer layerOutputBuffer = NIOUtils.directFloats(layerOutputArray.length, context.getByteOrder());
 		
 		paramBuffer.rewind();
 		paramBuffer.put(paramArray);
 		layerOutputBuffer.put(layerOutputArray);
+		
+		weightBuffer.rewind();
 		weightBuffer.put(weightsArray);
 				
-		// create CL buffers
-		CLFloatBuffer weightCLBuffer = context.createFloatBuffer(Usage.Input, weightBuffer, true);
+		// create CL buffers		
 		CLFloatBuffer layerOutputCLBuffer = context.createFloatBuffer(Usage.Input, layerOutputBuffer, true);		
 		CLFloatBuffer outputCLBuffer = context.createFloatBuffer(Usage.Output, outputSize);
 				
@@ -156,7 +154,6 @@ public class EncogOpenCLPlugin implements EncogPluginType1 {
 		kernelCompletion.release();
 		
 		// release
-		weightCLBuffer.release();
 		layerOutputCLBuffer.release();
 		outputCLBuffer.release();
 		
